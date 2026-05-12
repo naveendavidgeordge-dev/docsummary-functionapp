@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  password  String                          // bcrypt hashed, never returned
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  documents Document[]
+
+  @@map("users")
+}
+
+model Document {
+  id            String         @id @default(uuid())
+  fileName      String                          // unique storage name
+  originalName  String                          // user-facing display name
+  mimeType      String
+  fileSize      Int                             // bytes
+  blobUrl       String                          // full Azure Blob URL
+  blobPath      String                          // path for deletion: documents/YYYY/MM/DD/uuid-name
+  status        DocumentStatus @default(PENDING)
+  extractedJson Json?                           // populated by Azure Function
+  errorMessage  String?                         // set on FAILED
+  processedAt   DateTime?                       // set on COMPLETED or FAILED
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  userId        String
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
+}
+
+enum DocumentStatus {
+  PENDING     // File uploaded, waiting for Azure Function
+  PROCESSING  // Azure Function picked it up
+  COMPLETED   // extractedJson populated
+  FAILED      // errorMessage populated
+}

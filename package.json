@@ -1,0 +1,23 @@
+{
+  "name": "docprocess-function",
+  "version": "1.0.0",
+  "description": "DocProcess Azure Function Processor",
+  "main": "dist/src/functions/*.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "prestart": "npm run build",
+    "start": "func start",
+    "test": "echo \"No tests yet...\""
+  },
+  "dependencies": {
+    "@azure/functions": "^4.0.0",
+    "@prisma/client": "^5.7.1"
+  },
+  "devDependencies": {
+    "@types/node": "18.x",
+    "azure-functions-core-tools": "^4.x",
+    "prisma": "^5.7.1",
+    "typescript": "^5.0.0"
+  }
+}
