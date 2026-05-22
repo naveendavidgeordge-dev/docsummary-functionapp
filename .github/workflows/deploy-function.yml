@@ -38,13 +38,24 @@ jobs:
           }
           node -e "console.log(require('./package.json').main); require('./dist/src/index.js')"
 
+      - name: Keep production dependencies only
+        run: npm prune --omit=dev
+
+      - name: Verify production dependency package
+        run: |
+          if (!(Test-Path "node_modules/cookie")) {
+            throw "Missing node_modules/cookie"
+          }
+          if (!(Test-Path "node_modules/@azure/functions")) {
+            throw "Missing node_modules/@azure/functions"
+          }
+
       - name: Upload Function artifact
         uses: actions/upload-artifact@v4
         with:
           name: function-app
           path: |
             .
-            !node_modules
             !.git
             !.github
             !local.settings.json
