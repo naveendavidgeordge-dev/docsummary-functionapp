@@ -1,46 +1,33 @@
 name: Deploy Azure Function
 
 on:
-  push:
+  workflow_run:
+    workflows:
+      - Build Azure Function
+    types:
+      - completed
     branches:
       - main
   workflow_dispatch:
 
 jobs:
   deploy:
-    name: Build and deploy Function App
+    name: Deploy Function App
     runs-on: windows-latest
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Download Function artifact
+        uses: actions/download-artifact@v4
         with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build
-        run: npm run build
-
-      - name: Verify function entrypoint
-        run: |
-          if (!(Test-Path "dist/src/index.js")) {
-            throw "Missing dist/src/index.js"
-          }
-          if (!(Test-Path "dist/src/functions/processDocument.js")) {
-            throw "Missing dist/src/functions/processDocument.js"
-          }
-          node -e "console.log(require('./package.json').main); require('./dist/src/index.js')"
+          name: function-app
+          path: function-app
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
 
       - name: Deploy to Azure Functions
         uses: Azure/functions-action@v1
         with:
           app-name: docprocess-funcapp
-          package: .
+          package: function-app
           publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
