@@ -1,0 +1,15 @@
+# Exclude git & local settings
+.git
+.env
+local.settings.json
+
+# Exclude typescript sources (only dist/ is needed in production)
+# src/
+# tsconfig.json
+
+# Exclude local node_modules (we will let Azure install them in the cloud)
+node_modules/
+
+# Exclude local build artifacts that aren't necessary
+.vscode/
+temp/

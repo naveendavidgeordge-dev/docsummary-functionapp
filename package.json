@@ -2,7 +2,7 @@
   "name": "docprocess-function",
   "version": "1.0.0",
   "description": "DocProcess Azure Function Processor",
-  "main": "dist/src/functions/*.js",
+  "main": "dist/src/index.js",
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "@azure/functions": "^4.0.0",
-    "@prisma/client": "^5.7.1"
+    "@prisma/client": "^5.7.1",
+    "cookie": "^0.7.2"
   },
   "devDependencies": {
     "@types/node": "18.x",

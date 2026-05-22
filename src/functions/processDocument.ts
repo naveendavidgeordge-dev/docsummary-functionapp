@@ -1,12 +1,29 @@
 import { app, InvocationContext } from '@azure/functions';
-import prisma from '../lib/prisma-client';
 import { extractDocumentMetadata } from '../lib/document-extractor';
 
+console.log('processDocument loaded');
+
 export async function processDocument(blob: Buffer, context: InvocationContext): Promise<void> {
-  const blobPath = context.triggerMetadata?.name as string;
+  const containerName = 'documents';
+  const triggerName = context.triggerMetadata?.name as string | undefined;
+  const triggerPath = context.triggerMetadata?.blobTrigger as string | undefined;
+  const blobPath = triggerPath?.startsWith(`${containerName}/`)
+    ? triggerPath.slice(containerName.length + 1)
+    : triggerName;
+
   context.log(`Processing blob: ${blobPath}`);
+  context.log(`Blob trigger metadata: name=${triggerName}, blobTrigger=${triggerPath}`);
+
+  if (!blobPath) {
+    context.error('Unable to resolve blob path from trigger metadata.');
+    return;
+  }
+
+  let prisma: typeof import('../lib/prisma-client').default | undefined;
 
   try {
+    prisma = (await import('../lib/prisma-client')).default;
+    
     // 1. Find the document record by blobPath
     const document = await prisma.document.findFirst({
       where: { blobPath },
@@ -46,14 +63,16 @@ export async function processDocument(blob: Buffer, context: InvocationContext):
 
     // Update status to FAILED
     try {
-      await prisma.document.updateMany({
-        where: { blobPath },
-        data: {
-          status: 'FAILED',
-          errorMessage: (error as any).message || 'Unknown error during processing',
-          processedAt: new Date(),
-        },
-      });
+      if (prisma) {
+        await prisma.document.updateMany({
+          where: { blobPath },
+          data: {
+            status: 'FAILED',
+            errorMessage: (error as any).message || 'Unknown error during processing',
+            processedAt: new Date(),
+          },
+        });
+      }
     } catch (updateError) {
       context.error('Failed to update document status to FAILED:', updateError);
     }
@@ -61,7 +80,7 @@ export async function processDocument(blob: Buffer, context: InvocationContext):
 }
 
 app.storageBlob('processDocument', {
-  path: 'documents/{name}',
+  path: 'documents/{*name}',
   connection: 'AZURE_STORAGE_CONNECTION_STRING',
   handler: processDocument,
 });
