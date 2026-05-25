@@ -1,2 +1,1 @@
-// import './functions/processDocument';
-require("./functions/processDocument");
+import './functions/processDocumentQueue';
