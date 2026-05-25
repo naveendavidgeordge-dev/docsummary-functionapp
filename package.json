@@ -5,6 +5,7 @@
   "main": "dist/src/index.js",
   "scripts": {
     "build": "tsc",
+    "prisma:generate": "prisma generate",
     "watch": "tsc -w",
     "prestart": "npm run build",
     "start": "func start",
