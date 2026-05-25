@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@azure/functions": "^4.0.0",
-    "@azure/storage-blob": "^12.17.0",
     "@prisma/client": "^5.7.1",
     "cookie": "^0.7.2"
   },

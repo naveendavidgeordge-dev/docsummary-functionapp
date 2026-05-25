@@ -1,1 +1,1 @@
-import './functions/processDocumentQueue';
+import './functions/processDocument';
