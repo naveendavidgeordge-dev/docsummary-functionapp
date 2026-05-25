@@ -80,7 +80,7 @@ export async function processDocument(blob: Buffer, context: InvocationContext):
 }
 
 app.storageBlob('processDocument', {
-  path: 'documents/{name}',
+  path: 'documents/{*name}',
   connection: 'AZURE_STORAGE_CONNECTION_STRING',
   handler: processDocument,
 });
