@@ -60,6 +60,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: function-app
+          include-hidden-files: true
           path: |
             .
             !.git
