@@ -1,0 +1,33 @@
+name: Test CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - new-pipeline-creation
+
+jobs:
+  test-workflow:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Print test message
+        run: |
+          echo "================================="
+          echo "GitHub Actions is working!"
+          echo "Repository: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "================================="
+
+      - name: Check environment
+        run: |
+          echo "Runner OS:"
+          uname -a
+
+      - name: Finish
+        run: echo "Pipeline completed successfully"
